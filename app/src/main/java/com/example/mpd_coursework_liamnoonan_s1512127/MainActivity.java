@@ -91,20 +91,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                 in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
                 //
                 // Throw away the first 2 header lines before parsing
+                in.readLine();
+                in.readLine();
                 //
                 //
                 //
                 while ((inputLine = in.readLine()) != null)
                 {
                     result = result + inputLine;
-                    Log.e("MyTag",inputLine);
+                    Log.e("MyTag",inputLine + "Hello Liam");
 
                 }
                 in.close();
             }
             catch (IOException ae)
             {
-                Log.e("MyTag", "ioexception");
+                Log.e("MyTag", ae.toString());
             }
 
             //
