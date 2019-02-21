@@ -16,14 +16,18 @@ package com.example.mpd_coursework_liamnoonan_s1512127;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
+import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.ListView;
 
 import org.xml.sax.SAXException;
 
 import java.io.IOException;
-import java.util.List;
+import java.text.ParseException;
+import java.util.ArrayList;
 
 import javax.xml.parsers.ParserConfigurationException;
 import javax.xml.parsers.SAXParser;
@@ -33,7 +37,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 {
     private Button startButton;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
-
+    private ArrayList<Earthquake> earthquakeList;
+    private ListView listView;
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -42,10 +47,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         // Set up the raw links to the graphical components
         startButton = findViewById(R.id.startButton);
         startButton.setOnClickListener(this);
+        listView = findViewById(R.id.listView);
+        startProgress();
+
+
 
 
         // More Code goes here
     }
+
+
 
     /**
      * On click listener
@@ -53,7 +64,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
      */
     public void onClick(View aview)
     {
-        startProgress();
+        Log.e("Position", "Button Clicked!");
+        //startProgress();
     }
 
     /**
@@ -75,7 +87,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         public void run(){
 
             SAXParserFactory saxParserFactory = SAXParserFactory.newInstance();
-            Log.e("Position","in run method");
+            //Log.e("Position","in run method");
 
             try
             {
@@ -92,25 +104,37 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                 //Parse the xml from the source using our handler
                 saxParser.parse(urlSource, handler);
                 //Get Item list from the handler
-                List<Earthquake> itemList = handler.getItemList();
-                //Print items in the list
-                for(Earthquake it : itemList) {
-                    Log.e("Data", it.toString());
-                }
+                earthquakeList = handler.getItemList();
+
+
+
             } catch (ParserConfigurationException | SAXException | IOException e) {
+                e.printStackTrace();
+            } catch (ParseException e) {
                 e.printStackTrace();
             }
 
             MainActivity.this.runOnUiThread(new Runnable()
             {
                 public void run() {
-                    Log.d("Position", "I am the UI thread");
+                   // Log.d("Position", "I am the UI thread");
+
+                    ListViewAdapter adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+                    listView.setAdapter(adapter);
+
+                    listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+                        @Override
+                        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                            Earthquake dataModel= earthquakeList.get(position);
+                            //On item click, so here you can redirect to the next page perhaps for more detail?
+                            System.out.println(dataModel.getTitle());
+                        }
+                    });
 
                 }
             });
         }
     }
-
 
 
 }

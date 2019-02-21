@@ -3,18 +3,30 @@ package com.example.mpd_coursework_liamnoonan_s1512127;
 import org.xml.sax.Attributes;
 import org.xml.sax.helpers.DefaultHandler;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import java.time.LocalDate;
+import java.time.Period;
 import java.util.ArrayList;
-import java.util.List;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.concurrent.TimeUnit;
 
 public class EarthquakeHandler extends DefaultHandler {
 
     // List to hold Items
-    private List<Earthquake> itemList = null;
+    private ArrayList<Earthquake> itemList = null;
     private Earthquake item = new Earthquake();
     private StringBuilder data = null;
 
-    // getter method for  list of items
-    public List<Earthquake> getItemList() {
+    /**
+     * Getter method for Earthquakes
+     ** @return ArrayList of Earthquake objects
+     */
+    ArrayList<Earthquake> getItemList() throws ParseException {
+        //System.out.println("Number of items in list BEFORE cleaning: " + itemList.size());
+        cleanlist();
+        //System.out.println("Number of items in list AFTER cleaning: " + itemList.size());
         return itemList;
     }
 
@@ -23,13 +35,13 @@ public class EarthquakeHandler extends DefaultHandler {
      * This helps to avoid items we dont want such as the header information. The header tags
      * do not create an item of the format we want so will not be added to the list.
      */
-    boolean bTitle = false;
-    boolean bDescription = false;
-    boolean bLink = false;
-    boolean bPubDate = false;
-    boolean bCategory = false;
-    boolean bLatitude = false;
-    boolean bLongitude = false;
+    private boolean bTitle = false;
+    private boolean bDescription = false;
+    private boolean bLink = false;
+    private boolean bPubDate = false;
+    private boolean bCategory = false;
+    private boolean bLatitude = false;
+    private boolean bLongitude = false;
 
     @Override
     public void startElement(String uri, String localName, String qName, Attributes attributes) {
@@ -96,7 +108,29 @@ public class EarthquakeHandler extends DefaultHandler {
         }
     }
 
-    @Override
+    /**
+     * Function to remove Earthquakes from over 100 days ago
+     */
+    private void cleanlist() throws ParseException {
+        for(Earthquake e : itemList){
+
+            Date today = Calendar.getInstance().getTime();
+
+            String date = e.getPubDate();
+            Date parsedDate = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss").parse(date);
+
+            long diffInMillies = today.getTime() - parsedDate.getTime();
+            long diff = TimeUnit.DAYS.convert(diffInMillies, TimeUnit.MILLISECONDS);
+            if(diff > 100){
+                itemList.remove(e);
+            }
+            //System.out.println(diff);
+
+
+        }
+    }
+
+
     public void characters(char ch[], int start, int length) {
         data.append(new String(ch, start, length));
     }
