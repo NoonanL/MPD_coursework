@@ -64,7 +64,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
      */
     public void onClick(View aview)
     {
-        Log.e("Position", "Button Clicked!");
+        Log.e("UserEvent", "Button Clicked!");
         //startProgress();
     }
 
@@ -127,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             Earthquake dataModel= earthquakeList.get(position);
                             //On item click, so here you can redirect to the next page perhaps for more detail?
-                            System.out.println(dataModel.getTitle());
+                            Log.e("UserEvent", "Info button clicked for item " + dataModel.getTitle());
                         }
                     });
 
