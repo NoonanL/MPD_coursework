@@ -143,7 +143,9 @@ public class Earthquake {
                 this.getPubDate() + "\n" +
                 this.getCategory() + "\n" +
                 this.getLatitude() + "\n" +
-                this.getLongitude() + "\n";
+                this.getLongitude() + "\n" +
+                this.getMagnitude() + "\n" +
+                this.getColour() + "\n";
     }
 
 
