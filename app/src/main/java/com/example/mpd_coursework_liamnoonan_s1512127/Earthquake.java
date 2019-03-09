@@ -183,20 +183,39 @@ public class Earthquake {
     }
 
     //Comparator for magnitude value ascending
-public static Comparator<Earthquake> magAscComparitor = new Comparator<Earthquake>(){
+    public static Comparator<Earthquake> magAscComparitor = new Comparator<Earthquake>(){
 
-        public int compare(Earthquake e1, Earthquake e2){
+            public int compare(Earthquake e1, Earthquake e2){
 
-            return Float.compare(e1.getMagnitude(),e2.getMagnitude());
+                return Float.compare(e1.getMagnitude(),e2.getMagnitude());
 
-        }
-};
+            }
+    };
     //Comparator for magnitude value ascending
     public static Comparator<Earthquake> magDescComparitor = new Comparator<Earthquake>(){
 
         public int compare(Earthquake e1, Earthquake e2){
 
             return Float.compare(e2.getMagnitude(), e1.getMagnitude());
+
+        }
+    };
+    //Comparator for depth value ascending
+    public static Comparator<Earthquake> depthAscComparator = new Comparator<Earthquake>(){
+
+        public int compare(Earthquake e1, Earthquake e2){
+
+            return Float.compare(e1.getDepth(), e2.getDepth());
+
+        }
+    };
+
+    //Comparator for depth value ascending
+    public static Comparator<Earthquake> depthDescComparator = new Comparator<Earthquake>(){
+
+        public int compare(Earthquake e1, Earthquake e2){
+
+            return Float.compare(e2.getDepth(), e1.getDepth());
 
         }
     };

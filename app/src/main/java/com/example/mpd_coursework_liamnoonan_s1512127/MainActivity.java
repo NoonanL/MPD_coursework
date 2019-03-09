@@ -125,10 +125,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         Collections.sort(earthquakeList, Earthquake.magDescComparitor);
                         Toast.makeText(MainActivity.this, "Filtered by Magnitude (Descending)", Toast.LENGTH_SHORT).show();
                     }
-                    //else not implemented yet
-                    else{
-                        System.out.println("Filter not supported yet!");
+                    //Sort by depth ascending
+                    if(item.getTitle().equals("Depth: (Shallow -> Deep)")) {
+                        Collections.sort(earthquakeList, Earthquake.depthAscComparator);
+                        Toast.makeText(MainActivity.this, "Filtered by Depth: (Shallow -> Deep)", Toast.LENGTH_SHORT).show();
                     }
+                    //Sort by depth descending
+                    if(item.getTitle().equals("Depth: (Deep -> Shallow)")) {
+                        Collections.sort(earthquakeList, Earthquake.depthDescComparator);
+                        Toast.makeText(MainActivity.this, "Filtered by Depth: (Deep -> Shallow)", Toast.LENGTH_SHORT).show();
+                    }
+                    //else not implemented yet
+                   
                     //update the listView adapter to account for the filtered dataset
                     adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
                     //assign the new adapter to the listview

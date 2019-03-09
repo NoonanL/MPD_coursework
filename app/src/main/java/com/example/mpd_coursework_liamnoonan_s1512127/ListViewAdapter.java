@@ -25,6 +25,7 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         TextView txtTitle;
         TextView txtMag;
         TextView txtDate;
+        TextView txtDepth;
         ImageView info;
     }
 
@@ -74,6 +75,7 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
             viewHolder.txtTitle = convertView.findViewById(R.id.title);
             viewHolder.txtMag = convertView.findViewById(R.id.txtMag);
             viewHolder.txtDate = convertView.findViewById(R.id.txtDate);
+            viewHolder.txtDepth = convertView.findViewById(R.id.txtDepth);
             viewHolder.info = convertView.findViewById(R.id.item_info);
 
             result=convertView;
@@ -105,6 +107,7 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         viewHolder.txtTitle.setText(dataModel.getLocation());
         viewHolder.txtDate.setText(" " + dataModel.getPubDate());
         viewHolder.txtMag.setText(" Magnitude: " + String.valueOf(dataModel.getMagnitude()));
+        viewHolder.txtDepth.setText(" Depth: " + String.valueOf(dataModel.getDepth() + "km"));
         viewHolder.info.setOnClickListener(this);
         viewHolder.info.setTag(position);
         // Return the completed view to render on screen

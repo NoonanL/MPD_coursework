@@ -9,4 +9,10 @@
     <item
         android:id="@+id/magDesc"
         android:title="Magnitude (Descending)"/>
+    <item
+        android:id="@+id/depthAsc"
+        android:title="Depth: (Shallow -> Deep)"/>
+    <item
+        android:id="@+id/depthDesc"
+        android:title="Depth: (Deep -> Shallow)"/>
 </menu>
