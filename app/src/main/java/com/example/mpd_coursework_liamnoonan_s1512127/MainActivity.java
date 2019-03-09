@@ -13,16 +13,20 @@
 // Update the package name to include your Student Identifier
 package com.example.mpd_coursework_liamnoonan_s1512127;
 
+import android.annotation.SuppressLint;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.PopupMenu;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -35,18 +39,22 @@ import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener
 {
     private Button startButton;
     private Button searchButton;
+    private Button filterButton;
     private EditText searchInput;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
+    private ArrayList<Earthquake> originEarthquakeList;
     private ArrayList<Earthquake> earthquakeList;
     private ListView listView;
     private TextView listCount;
     private String result = "";
+    private String searchParam = "";
     private ListViewAdapter adapter;
 
 
@@ -56,8 +64,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         // Set up the raw links to the graphical components
-        startButton = findViewById(R.id.startButton);
-        startButton.setOnClickListener(this);
+
+        filterButton = findViewById(R.id.filterButton);
+        filterButton.setOnClickListener(this);
 
         listCount = findViewById(R.id.listCount);
         searchButton = findViewById(R.id.searchButton);
@@ -68,12 +77,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
         listView = findViewById(R.id.listView);
 
-
-
         startProgress();
-
-
-
 
         // More Code goes here
     }
@@ -84,16 +88,60 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
      * On click listener
      * @param aview
      */
+    @SuppressLint("ResourceType")
     public void onClick(View aview)
     {
-        Log.e("UserEvent", "Button Clicked!");
+//        Log.e("UserEvent", "Button Clicked!");
         if(aview == searchButton){
             System.out.println("Search button pressed!");
-            String searchString = searchInput.getText().toString();
-            searchFunc(searchString);
-        }else if(aview == startButton){
-            System.out.println("Start button pressed!");
-    }
+            searchParam = searchInput.getText().toString();
+            searchFunc(searchParam);
+        } else if (aview == filterButton){
+
+            /**
+             * Opens popup menu to display filters
+             */
+            //Create popup menu
+            PopupMenu popup = new PopupMenu(MainActivity.this, filterButton);
+            popup.getMenuInflater().inflate(R.layout.filter_menu, popup.getMenu());
+            //Set onlick listener for popup menu
+            popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
+                //on click handlers
+                public boolean onMenuItemClick(MenuItem item) {
+
+                    //reset earthquakeList to the original earthquake dataset
+                    if(item.getTitle().equals("Reset Filters")) {
+                        earthquakeList = new ArrayList<>();
+                        earthquakeList.addAll(originEarthquakeList);
+                        Toast.makeText(MainActivity.this, "Filtered by Default", Toast.LENGTH_SHORT).show();
+                    }
+                    //Sort by magnitude ascending
+                    if(item.getTitle().equals("Magnitude (Ascending)")) {
+                        Collections.sort(earthquakeList, Earthquake.magAscComparitor);
+                        Toast.makeText(MainActivity.this, "Filtered by Magnitude (Ascending)", Toast.LENGTH_SHORT).show();
+                    }
+                    //Sort by magnitude descending
+                    if(item.getTitle().equals("Magnitude (Descending)")) {
+                        Collections.sort(earthquakeList, Earthquake.magDescComparitor);
+                        Toast.makeText(MainActivity.this, "Filtered by Magnitude (Descending)", Toast.LENGTH_SHORT).show();
+                    }
+                    //else not implemented yet
+                    else{
+                        System.out.println("Filter not supported yet!");
+                    }
+                    //update the listView adapter to account for the filtered dataset
+                    adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+                    //assign the new adapter to the listview
+                    listView.setAdapter(adapter);
+                    //update the adapter's dataset.
+                    adapter.notifyDataSetChanged();
+                    return true;
+                }
+            });
+
+            popup.show();//showing popup menu
+        }
+
         //startProgress();
     }
 
@@ -147,11 +195,14 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                 Log.e("MyTag", "ioexception");
             }
 
-            earthquakeList = parseData(result);
+            //establish the original dataset
+            originEarthquakeList = parseData(result);
+            //set up another list of earthquakes for filtering/searching
+            earthquakeList = new ArrayList<>();
+            earthquakeList.addAll(originEarthquakeList);
 
 
             //Log.e("Position","in run method");
-
 
 
             MainActivity.this.runOnUiThread(new Runnable()
@@ -164,7 +215,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Earthquake dataModel= earthquakeList.get(position);
+                            Earthquake dataModel= originEarthquakeList.get(position);
                             //On item click, so here you can redirect to the next page perhaps for more detail?
                             Log.e("UserEvent", "Info button clicked for item " + dataModel.getTitle());
                         }
@@ -344,21 +395,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                     searchResults.add(e);
                 }
             }
+            earthquakeList = searchResults;
             listCount.setText("(" + searchResults.size() + ")");
             //Reinstantiate the adapter with the search results
-            adapter = new ListViewAdapter(searchResults, getApplicationContext());
-            //assign the new adapter to the listview
-            listView.setAdapter(adapter);
-            //update the adapter's dataset.
-            adapter.notifyDataSetChanged();
+            adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+
         }
+
         //else search is empty - return the full list of earthquakes
         else{
-            listCount.setText("(" + earthquakeList.size() + ")");
-            adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
-            listView.setAdapter(adapter);
-            adapter.notifyDataSetChanged();
+            listCount.setText("(" + originEarthquakeList.size() + ")");
+            adapter = new ListViewAdapter(originEarthquakeList, getApplicationContext());
         }
+        //assign the new adapter to the listview
+        listView.setAdapter(adapter);
+        //update the adapter's dataset.
+        adapter.notifyDataSetChanged();
     }
 
 

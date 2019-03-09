@@ -1,7 +1,6 @@
 package com.example.mpd_coursework_liamnoonan_s1512127;
 
-import android.util.Log;
-
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -17,6 +16,7 @@ public class Earthquake {
     private float magnitude;
     private float latitude;
     private float longitude;
+    private int depth;
 
     public String getTitle() {
         return title;
@@ -96,6 +96,23 @@ public class Earthquake {
         this.colour = colour;
     }
 
+    public String getLocation() {
+        return location;
+    }
+
+    public void setLocation(String location) {
+        this.location = location;
+    }
+
+    public int getDepth() {
+        return depth;
+    }
+
+    public void setDepth(int depth) {
+        this.depth = depth;
+    }
+
+
 
     /**
      * Used to parse additional data from the description tag such as the magnitude
@@ -134,8 +151,19 @@ public class Earthquake {
             if(s.contains("Location")){
                 this.location = map.get(s);
             }
+            if(s.contains("Depth")){
 
-            //System.out.println(s + " is " + map.get(s));
+                if(map.get(s) != null){
+
+                   String str = map.get(s) ;
+                    str = str.replaceAll("\\D+","");
+
+                    this.depth = Integer.parseInt(str);
+                    System.out.println("Depth is " + this.getDepth());
+                }
+
+            }
+
         }
     }
 
@@ -150,15 +178,30 @@ public class Earthquake {
                 this.getLatitude() + "\n" +
                 this.getLongitude() + "\n" +
                 this.getMagnitude() + "\n" +
+                this.getDepth() + "\n" +
                 this.getColour() + "\n";
     }
 
+    //Comparator for magnitude value ascending
+public static Comparator<Earthquake> magAscComparitor = new Comparator<Earthquake>(){
 
-    public String getLocation() {
-        return location;
-    }
+        public int compare(Earthquake e1, Earthquake e2){
 
-    public void setLocation(String location) {
-        this.location = location;
-    }
+            return Float.compare(e1.getMagnitude(),e2.getMagnitude());
+
+        }
+};
+    //Comparator for magnitude value ascending
+    public static Comparator<Earthquake> magDescComparitor = new Comparator<Earthquake>(){
+
+        public int compare(Earthquake e1, Earthquake e2){
+
+            return Float.compare(e2.getMagnitude(), e1.getMagnitude());
+
+        }
+    };
+
+
+
+
 }
