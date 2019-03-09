@@ -22,8 +22,9 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
     // View lookup cache
     private static class ViewHolder {
         RelativeLayout container;
-        TextView txtName;
-        TextView txtType;
+        TextView txtTitle;
+        TextView txtMag;
+        TextView txtDate;
         ImageView info;
     }
 
@@ -70,8 +71,9 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
             LayoutInflater inflater = LayoutInflater.from(getContext());
             convertView = inflater.inflate(R.layout.row_item, parent, false);
             viewHolder.container = convertView.findViewById(R.id.container);
-            viewHolder.txtName = convertView.findViewById(R.id.title);
-            viewHolder.txtType = convertView.findViewById(R.id.pubDate);
+            viewHolder.txtTitle = convertView.findViewById(R.id.title);
+            viewHolder.txtMag = convertView.findViewById(R.id.txtMag);
+            viewHolder.txtDate = convertView.findViewById(R.id.txtDate);
             viewHolder.info = convertView.findViewById(R.id.item_info);
 
             result=convertView;
@@ -100,8 +102,9 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
             }
         }
 
-        viewHolder.txtName.setText(dataModel.getTitle());
-        viewHolder.txtType.setText("Magnitude: " + String.valueOf(dataModel.getMagnitude()));
+        viewHolder.txtTitle.setText(dataModel.getLocation());
+        viewHolder.txtDate.setText(" " + dataModel.getPubDate());
+        viewHolder.txtMag.setText(" Magnitude: " + String.valueOf(dataModel.getMagnitude()));
         viewHolder.info.setOnClickListener(this);
         viewHolder.info.setTag(position);
         // Return the completed view to render on screen

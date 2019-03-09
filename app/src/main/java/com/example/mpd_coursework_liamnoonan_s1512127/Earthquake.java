@@ -9,6 +9,7 @@ public class Earthquake {
 
     private String title;
     private String description;
+    private String location;
     private String link;
     private String pubDate;
     private String category;
@@ -130,6 +131,9 @@ public class Earthquake {
                     this.colour = "red";
                 }
             }
+            if(s.contains("Location")){
+                this.location = map.get(s);
+            }
 
             //System.out.println(s + " is " + map.get(s));
         }
@@ -139,6 +143,7 @@ public class Earthquake {
     public String toString(){
         return this.getTitle() + "\n" +
                 this.getDescription() + "\n" +
+                this.getLocation() + "\n" +
                 this.getLink() + "\n" +
                 this.getPubDate() + "\n" +
                 this.getCategory() + "\n" +
@@ -149,5 +154,11 @@ public class Earthquake {
     }
 
 
+    public String getLocation() {
+        return location;
+    }
 
+    public void setLocation(String location) {
+        this.location = location;
+    }
 }

@@ -20,7 +20,9 @@ import android.view.View;
 import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -33,14 +35,21 @@ import java.io.StringReader;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
+import java.util.Iterator;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener
 {
     private Button startButton;
+    private Button searchButton;
+    private EditText searchInput;
     private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
     private ArrayList<Earthquake> earthquakeList;
     private ListView listView;
+    private TextView listCount;
     private String result = "";
+    private ListViewAdapter adapter;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
@@ -49,7 +58,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         // Set up the raw links to the graphical components
         startButton = findViewById(R.id.startButton);
         startButton.setOnClickListener(this);
+
+        listCount = findViewById(R.id.listCount);
+        searchButton = findViewById(R.id.searchButton);
+        searchButton.setOnClickListener(this);
+        searchInput = findViewById(R.id.searchInput);
+        searchInput.setWidth(120);
+        searchInput.setFocusable(true);
+
         listView = findViewById(R.id.listView);
+
+
+
         startProgress();
 
 
@@ -67,6 +87,13 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     public void onClick(View aview)
     {
         Log.e("UserEvent", "Button Clicked!");
+        if(aview == searchButton){
+            System.out.println("Search button pressed!");
+            String searchString = searchInput.getText().toString();
+            searchFunc(searchString);
+        }else if(aview == startButton){
+            System.out.println("Start button pressed!");
+    }
         //startProgress();
     }
 
@@ -132,8 +159,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                 public void run() {
                    // Log.d("Position", "I am the UI thread");
 
-                    ListViewAdapter adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
-                    listView.setAdapter(adapter);
+                    searchFunc("");
 
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
@@ -301,5 +327,39 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         return alist;
 
     }
+
+    private void searchFunc(String searchParam) {
+
+        //if the search is not empty
+        if(searchParam.length() >0){
+
+            //create new arraylist to contain search results
+            ArrayList<Earthquake> searchResults = new ArrayList<>();
+
+            //iterate through earthquakes, if earthquake title contains the search string add to
+            //the arraylist of search results
+            for (Iterator<Earthquake> iterator = earthquakeList.iterator(); iterator.hasNext(); ) {
+                Earthquake e = iterator.next();
+                if (e.getTitle().contains(searchParam)) {
+                    searchResults.add(e);
+                }
+            }
+            listCount.setText("(" + searchResults.size() + ")");
+            //Reinstantiate the adapter with the search results
+            adapter = new ListViewAdapter(searchResults, getApplicationContext());
+            //assign the new adapter to the listview
+            listView.setAdapter(adapter);
+            //update the adapter's dataset.
+            adapter.notifyDataSetChanged();
+        }
+        //else search is empty - return the full list of earthquakes
+        else{
+            listCount.setText("(" + earthquakeList.size() + ")");
+            adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+            listView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
+        }
+    }
+
 
 }
