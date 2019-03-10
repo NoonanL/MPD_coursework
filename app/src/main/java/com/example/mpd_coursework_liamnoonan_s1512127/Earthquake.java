@@ -12,11 +12,12 @@ public class Earthquake {
     private String link;
     private String pubDate;
     private String category;
-    private String colour;
+    private String magColour;
     private float magnitude;
     private float latitude;
     private float longitude;
     private int depth;
+    private String depthColour;
 
     public String getTitle() {
         return title;
@@ -88,12 +89,12 @@ public class Earthquake {
         this.magnitude = magnitude;
     }
 
-    public String getColour() {
-        return colour;
+    public String getMagColour() {
+        return magColour;
     }
 
-    public void setColour(String colour) {
-        this.colour = colour;
+    public void setMagColour(String magColour) {
+        this.magColour = magColour;
     }
 
     public String getLocation() {
@@ -110,6 +111,14 @@ public class Earthquake {
 
     public void setDepth(int depth) {
         this.depth = depth;
+    }
+
+    public String getDepthColour() {
+        return depthColour;
+    }
+
+    public void setDepthColour(String depthColour) {
+        this.depthColour = depthColour;
     }
 
 
@@ -138,14 +147,14 @@ public class Earthquake {
             if(s.contains("Magnitude")){
                 this.magnitude = Float.parseFloat(map.get(s));
                 //System.out.println(Float.parseFloat(map.get(s)));
-                if(magnitude > -1 && magnitude < 0.9){
-                    this.colour = "green";
+                if(magnitude < 0.9){
+                    this.magColour = "green";
                 }
-                if(magnitude > 0.9 && magnitude < 1.5){
-                    this.colour = "orange";
+                if(magnitude > 0.8 && magnitude < 1.5){
+                    this.magColour = "orange";
                 }
-                if(magnitude > 1.5){
-                    this.colour = "red";
+                if(magnitude > 1.4){
+                    this.magColour = "red";
                 }
             }
             if(s.contains("Location")){
@@ -156,10 +165,21 @@ public class Earthquake {
                 if(map.get(s) != null){
 
                    String str = map.get(s) ;
+                   //Regex to return just the numbers from the string (remove km)
                     str = str.replaceAll("\\D+","");
 
                     this.depth = Integer.parseInt(str);
-                    System.out.println("Depth is " + this.getDepth());
+
+                    if(depth < 5){
+                        this.depthColour = "green";
+                    }
+                    if(depth > 4 && depth < 10){
+                        this.depthColour = "orange";
+                    }
+                    if(depth > 9){
+                        this.depthColour = "red";
+                    }
+                    //System.out.println("Depth is " + this.getDepth());
                 }
 
             }
@@ -179,7 +199,7 @@ public class Earthquake {
                 this.getLongitude() + "\n" +
                 this.getMagnitude() + "\n" +
                 this.getDepth() + "\n" +
-                this.getColour() + "\n";
+                this.getMagColour() + "\n";
     }
 
     //Comparator for magnitude value ascending
@@ -219,7 +239,6 @@ public class Earthquake {
 
         }
     };
-
 
 
 

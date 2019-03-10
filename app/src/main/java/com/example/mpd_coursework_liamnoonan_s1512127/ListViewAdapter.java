@@ -87,20 +87,35 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         }
 
 
+        viewHolder.container.setBackgroundColor(Color.LTGRAY);
 
         Animation animation = AnimationUtils.loadAnimation(mContext, (position > lastPosition) ? R.anim.up_from_bottom : R.anim.down_from_top);
         result.startAnimation(animation);
         lastPosition = position;
-        //System.out.println(dataModel.getColour());
-        if(dataModel.getColour()!=null){
-            if(dataModel.getColour().equals("green")) {
-                viewHolder.container.setBackgroundColor(Color.GREEN);
+        //System.out.println(dataModel.getMagColour());
+        if(dataModel.getMagColour()!=null){
+            if(dataModel.getMagColour().equals("green")) {
+                viewHolder.txtMag.setBackgroundColor(Color.GREEN);
             }
-            if(dataModel.getColour().equals("orange")) {
-                viewHolder.container.setBackgroundColor(Color.YELLOW);
+            if(dataModel.getMagColour().equals("orange")) {
+                viewHolder.txtMag.setBackgroundColor(Color.YELLOW);
             }
-            if(dataModel.getColour().equals("red")) {
-                viewHolder.container.setBackgroundColor(Color.RED);
+            if(dataModel.getMagColour().equals("red")) {
+                viewHolder.txtMag.setBackgroundColor(Color.RED);
+                //viewHolder.txtMag.setTextColor(Color.WHITE);
+            }
+        }
+
+        if(dataModel.getDepthColour()!=null){
+            if(dataModel.getDepthColour().equals("green")) {
+                viewHolder.txtDepth.setBackgroundColor(Color.GREEN);
+            }
+            if(dataModel.getDepthColour().equals("orange")) {
+                viewHolder.txtDepth.setBackgroundColor(Color.YELLOW);
+            }
+            if(dataModel.getDepthColour().equals("red")) {
+                viewHolder.txtDepth.setBackgroundColor(Color.RED);
+                //viewHolder.txtDepth.setTextColor(Color.WHITE);
             }
         }
 
