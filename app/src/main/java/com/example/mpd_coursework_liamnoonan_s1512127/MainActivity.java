@@ -14,7 +14,10 @@
 package com.example.mpd_coursework_liamnoonan_s1512127;
 
 import android.annotation.SuppressLint;
+import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -23,8 +26,10 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
+import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -41,6 +46,8 @@ import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements OnClickListener
 {
@@ -48,23 +55,28 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     private Button searchButton;
     private Button filterButton;
     private EditText searchInput;
-    private String urlSource="http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
+    public ProgressBar progressBar;
+    private TextView txt_percentage;
     private ArrayList<Earthquake> originEarthquakeList;
     private ArrayList<Earthquake> earthquakeList;
     private ListView listView;
     private TextView listCount;
     private String result = "";
-    private String searchParam = "";
     private ListViewAdapter adapter;
 
 
+    /**
+     * On create method, initialises variables and attaches ui components where necessary
+     * Also starts the main process.
+     * @param savedInstanceState
+     */
     @Override
     protected void onCreate(Bundle savedInstanceState)
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        
         // Set up the raw links to the graphical components
-
         filterButton = findViewById(R.id.filterButton);
         filterButton.setOnClickListener(this);
 
@@ -75,26 +87,27 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         searchInput.setWidth(120);
         searchInput.setFocusable(true);
 
+        progressBar =  (ProgressBar) findViewById(R.id.progress);
+        txt_percentage= (TextView) findViewById(R.id.txt_percentage);
+
         listView = findViewById(R.id.listView);
 
         startProgress();
 
-        // More Code goes here
     }
 
 
 
     /**
-     * On click listener
+     * On click listener, handles button presses
      * @param aview
      */
     @SuppressLint("ResourceType")
     public void onClick(View aview)
     {
-//        Log.e("UserEvent", "Button Clicked!");
         if(aview == searchButton){
             System.out.println("Search button pressed!");
-            searchParam = searchInput.getText().toString();
+            String searchParam = searchInput.getText().toString();
             searchFunc(searchParam);
         } else if (aview == filterButton){
 
@@ -150,19 +163,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
             popup.show();//showing popup menu
         }
 
-        //startProgress();
     }
 
     /**
-     * Run background task in new thread to fetch data from xml feed.
+     * Starter method
      */
     public void startProgress()
     {
-        // Run network access on a separate thread;
+        //start main thread
         new Thread(new Task()).start();
+
     }
 
-
+    /**
+     * Main task which sets up the UI and async refresh thread.
+     */
     private class Task implements Runnable
     {
 
@@ -171,55 +186,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         @Override
         public void run(){
 
-            URL aurl;
-            URLConnection yc;
-            BufferedReader in = null;
-            String inputLine = "";
+            //Call fetch data once to populate the app with data. This will then be handled by ASYNC
+            fetchData();
 
-
-            Log.e("MyTag","in run");
-
-            try
-            {
-                Log.e("MyTag","in try");
-                aurl = new URL(urlSource);
-                yc = aurl.openConnection();
-                in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
-                //
-                // Throw away the first 2 header lines before parsing
-                //
-                //
-                //
-                while ((inputLine = in.readLine()) != null)
-                {
-                    result = result + inputLine;
-                    //Log.e("MyTag",inputLine);
-
-                }
-                in.close();
-            }
-            catch (IOException ae)
-            {
-                Log.e("MyTag", "ioexception");
-            }
-
-            //establish the original dataset
-            originEarthquakeList = parseData(result);
-            //set up another list of earthquakes for filtering/searching
-            earthquakeList = new ArrayList<>();
-            earthquakeList.addAll(originEarthquakeList);
-
-
-            //Log.e("Position","in run method");
-
-
+            //Set up UI thread
             MainActivity.this.runOnUiThread(new Runnable()
             {
+
+                //Main function
                 public void run() {
                    // Log.d("Position", "I am the UI thread");
 
+                    //Call the search function to set the defaults.
                     searchFunc("");
 
+                    //Create listener for each earthquake item onclick
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
@@ -229,12 +210,170 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         }
                     });
 
+                    //Start a new thread to run in the background to Async refresh the data
+                    new Thread(new BackgroundTask()).start();
                 }
+
             });
         }
     }
 
-    private ArrayList<Earthquake> parseData(String dataToParse)
+    /**
+     * Background task for async data refresh.
+     * Sets up a timer for every 20 seconds and calls the async refresh method to re-fetch the data
+     */
+    private class BackgroundTask implements Runnable{
+
+        public BackgroundTask(){}
+
+        @Override
+        public void run() {
+            Timer myTimer = new Timer();
+            myTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    new FetchData().execute();
+                }
+
+            }, 0, 20000);
+
+        }
+    }
+
+
+    /**
+     * Provides search functionality
+     * @param searchParam input string for searching
+     */
+    private void searchFunc(String searchParam) {
+
+        //if the search is not empty
+        if(searchParam.length() >0){
+
+            earthquakeList = new ArrayList<>();
+            earthquakeList.addAll(originEarthquakeList);
+
+            //create new arraylist to contain search results
+            ArrayList<Earthquake> searchResults = new ArrayList<>();
+
+            //iterate through earthquakes, if earthquake title contains the search string add to
+            //the arraylist of search results
+            for (Earthquake e : earthquakeList) {
+                if (e.getTitle().contains(searchParam)) {
+                    searchResults.add(e);
+                }
+            }
+            earthquakeList = searchResults;
+            listCount.setText("(" + searchResults.size() + ")");
+            //Reinstantiate the adapter with the search results
+            adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+
+        }
+
+        //else search is empty - return the full list of earthquakes
+        else{
+            listCount.setText("(" + originEarthquakeList.size() + ")");
+            adapter = new ListViewAdapter(originEarthquakeList, getApplicationContext());
+        }
+        //assign the new adapter to the listview
+        listView.setAdapter(adapter);
+        //update the adapter's dataset.
+        adapter.notifyDataSetChanged();
+    }
+
+    /**
+     * Async function to fetch data.
+     */
+    private class FetchData extends AsyncTask<Void, Integer, Void>{
+
+        int progress_status;
+
+        @Override
+        protected void onPreExecute()
+        {
+            super.onPreExecute();
+            progress_status = 0;
+            progressBarVisibility(true);
+
+        }
+
+        @Override
+        protected Void doInBackground(Void... voids) {
+
+            //Call fetch data function to refetch the earthquake data
+           fetchData();
+
+           //Since this is basically instant, set up a dummy timer for the UI and have it count down
+                while(progress_status<100)
+                {
+                    progress_status += 2;
+                    publishProgress(progress_status);
+                    SystemClock.sleep(100); // or Thread.sleep(300);
+                }
+                return null;
+        }
+
+        @Override
+        protected void onProgressUpdate(Integer... values)
+        {
+            super.onProgressUpdate(values);
+            progressBar.setProgress(values[0]);
+
+        }
+
+        @Override
+        protected void onPostExecute(Void result)
+        {
+            super.onPostExecute(result);
+            progressBarVisibility(false);
+
+        }
+    }
+
+    /**
+     * Creates URL connection to quakes.bgs.ac.uk and parses data
+     */
+    private void fetchData(){
+        URL aurl;
+        URLConnection yc;
+        BufferedReader in = null;
+        String inputLine = "";
+
+        try
+        {
+           // Log.e("MyTag","in try");
+            String urlSource = "http://quakes.bgs.ac.uk/feeds/MhSeismology.xml";
+            aurl = new URL(urlSource);
+            yc = aurl.openConnection();
+            in = new BufferedReader(new InputStreamReader(yc.getInputStream()));
+
+
+            while ((inputLine = in.readLine()) != null)
+            {
+                result = result + inputLine;
+                //Log.e("MyTag",inputLine);
+
+            }
+            in.close();
+        }
+        catch (IOException ae)
+        {
+            Log.e("PARSING", "ioexception");
+        }
+
+        //establish the original dataset
+        originEarthquakeList = parseData(result);
+        //set up another list of earthquakes for filtering/searching
+        earthquakeList = new ArrayList<>();
+        earthquakeList.addAll(originEarthquakeList);
+    }
+
+    /**
+     * Parse XML Feed into Earthquake objects.
+     * @param dataToParse String data recieved from XML feed
+     * @return an Arraylist of Earthquake objects
+     */
+    public ArrayList<Earthquake> parseData(String dataToParse)
     {
         Earthquake earthquake = null;
         ArrayList <Earthquake> alist = null;
@@ -267,7 +406,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         // Now just get the associated text
                         String temp = xpp.nextText();
                         // Do something with text
-                       // Log.e("MyTag","Title is " + temp);
+                        // Log.e("MyTag","Title is " + temp);
                         if(earthquake!=null){
                             earthquake.setTitle(temp);
                         }
@@ -292,7 +431,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                                 // Now just get the associated text
                                 String temp = xpp.nextText();
                                 // Do something with text
-                               // Log.e("MyTag","Link is " + temp);
+                                // Log.e("MyTag","Link is " + temp);
                                 if (earthquake!=null) {
                                     earthquake.setLink(temp);
                                 }
@@ -303,7 +442,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         // Now just get the associated text
                         String temp = xpp.nextText();
                         // Do something with text
-                       // Log.e("MyTag","pubDate is " + temp);
+                        // Log.e("MyTag","pubDate is " + temp);
                         if (earthquake!=null) {
                             earthquake.setPubDate(temp);
                         }
@@ -314,7 +453,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         // Now just get the associated text
                         String temp = xpp.nextText();
                         // Do something with text
-                       // Log.e("MyTag","Category is " + temp);
+                        // Log.e("MyTag","Category is " + temp);
                         if (earthquake!=null) {
                             earthquake.setCategory(temp);
                         }
@@ -347,10 +486,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                     if (xpp.getName().equalsIgnoreCase("item"))
                     {
                         assert earthquake != null;
-                       // Log.e("MyTag","earthquake is " + earthquake.toString());
+                        // Log.e("MyTag","earthquake is " + earthquake.toString());
                         if(alist!=null){
-                        alist.add(earthquake);
-                         }
+                            alist.add(earthquake);
+                        }
                     }
 
                     else
@@ -359,67 +498,65 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         int size;
                         if(alist!=null) {
                             size = alist.size();
-                            Log.e("MyTag", "earthquakelist size is " + size);
+                            //Log.e("MyTag", "earthquakelist size is " + size);
+
                         }
+                        break;
                     }
                 }
 
-
                 // Get the next event
                 eventType = xpp.next();
+
 
             } // End of while
 
             //return alist;
         }
-        catch (XmlPullParserException ae1)
+        catch (XmlPullParserException e)
         {
-            Log.e("MyTag","Parsing error" + ae1.toString());
+            Log.e("MyTag","Pull Parser Exception");
+            //e.printStackTrace();
         }
         catch (IOException ae1)
         {
             Log.e("MyTag","IO error during parsing");
         }
 
-        Log.e("MyTag","End document");
+        // Log.e("MyTag","End document");
 
         return alist;
 
     }
+    /**
+     * Helper function to change the visibility of the progress bar and to Toast the update status,
+     * this cannot be done on the same thread as the Async Task without additional code
+     * @param val boolean value, true for visible, false for invisible
+     */
+    public void progressBarVisibility(final boolean val){
 
-    private void searchFunc(String searchParam) {
+            runOnUiThread(new Runnable() {
 
-        //if the search is not empty
-        if(searchParam.length() >0){
+                @Override
+                public void run() {
 
-            //create new arraylist to contain search results
-            ArrayList<Earthquake> searchResults = new ArrayList<>();
 
-            //iterate through earthquakes, if earthquake title contains the search string add to
-            //the arraylist of search results
-            for (Iterator<Earthquake> iterator = earthquakeList.iterator(); iterator.hasNext(); ) {
-                Earthquake e = iterator.next();
-                if (e.getTitle().contains(searchParam)) {
-                    searchResults.add(e);
-                }
+                    if(val){
+
+                    // Stuff that updates the UI
+                    progressBar.setVisibility(View.VISIBLE);
+                    txt_percentage.setVisibility(View.VISIBLE);
+                    Toast.makeText(MainActivity.this,"Auto Fetching data..", Toast.LENGTH_SHORT).show();
+
+                }else{
+                        progressBar.setVisibility(View.INVISIBLE);
+                        txt_percentage.setVisibility(View.INVISIBLE);
+                        Toast.makeText(MainActivity.this,"Updated.", Toast.LENGTH_SHORT).show();
+                    }
             }
-            earthquakeList = searchResults;
-            listCount.setText("(" + searchResults.size() + ")");
-            //Reinstantiate the adapter with the search results
-            adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+        });
 
-        }
 
-        //else search is empty - return the full list of earthquakes
-        else{
-            listCount.setText("(" + originEarthquakeList.size() + ")");
-            adapter = new ListViewAdapter(originEarthquakeList, getApplicationContext());
-        }
-        //assign the new adapter to the listview
-        listView.setAdapter(adapter);
-        //update the adapter's dataset.
-        adapter.notifyDataSetChanged();
     }
-
 
 }

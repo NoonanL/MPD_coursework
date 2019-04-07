@@ -12,7 +12,8 @@
             android:orientation="horizontal"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:layout_weight="1">
+            android:layout_weight="0.2"
+            >
             <TextView
                 android:id="@+id/listCount"
                 android:layout_width="wrap_content"
@@ -23,9 +24,8 @@
                 />
             <EditText
                 android:id="@+id/searchInput"
-                android:layout_weight="0.7"
                 android:layout_height="wrap_content"
-                android:layout_width="0px" />
+                android:layout_width="550px" />
 
             <Button
                 android:id="@+id/searchButton"
@@ -42,22 +42,58 @@
         </LinearLayout>
 
 
+
+
+
+
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="0px"
-        android:layout_weight="18">
+        android:layout_weight="20.5"
+        android:orientation="vertical"
+        android:id="@+id/listHolder">
+
         <ListView
             android:id="@+id/listView"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_below="@+id/filterBar"
             />
+
+
         </LinearLayout>
-        <LinearLayout
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:id="@+id/pushBar">
+
+        <TextView
+            android:id="@+id/acknowledgement"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:layout_weight="1">
+            android:text="Contains British Geological Survey materials ©NERC 2019"
+            android:textSize="14sp"
+            android:textAlignment="center"
+            />
+        <ProgressBar android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:id="@+id/progress"
+            android:visibility="invisible"
+            android:layout_gravity="bottom"
+            style="?android:attr/progressBarStyleHorizontal"/>
+
+        <TextView android:layout_height="wrap_content"
+            android:layout_width="fill_parent"
+            android:text="List is up to date."
+            android:visibility="invisible"
+            android:id="@+id/txt_percentage"
+            android:layout_gravity="bottom"
+            android:gravity="center"
+            />
+
+    </LinearLayout>
 
         <!--<Button-->
             <!--android:id="@+id/startButton"-->
@@ -68,15 +104,6 @@
 
         <!--</Button>-->
 
-        <TextView
-            android:id="@+id/acknowledgement"
-            android:layout_width="fill_parent"
-            android:layout_height="wrap_content"
-            android:text="Contains British Geological Survey materials ©NERC 2019"
-            android:textSize="14sp"
-            android:textAlignment="center"
-            />
 
-        </LinearLayout>
 
 </LinearLayout>
