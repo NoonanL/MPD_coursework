@@ -18,6 +18,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.SystemClock;
+import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -33,6 +34,13 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 import android.widget.ViewFlipper;
+
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -69,7 +77,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     private String searchParam;
 
 
-
     private Button mapsBackButton;
     private ViewFlipper flipper;
     private TextView mapsText;
@@ -101,7 +108,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         txt_percentage= (TextView) findViewById(R.id.txt_percentage);
 
         listView = findViewById(R.id.listView);
-
 
         mapsBackButton=(Button)findViewById(R.id.mapsBackButton);
         mapsBackButton.setOnClickListener(this);
