@@ -1,45 +1,53 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- MPD XML Starter code Semester B Session 2018 2019 -->
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ViewFlipper
+    android:layout_height="fill_parent"
+    android:layout_width="fill_parent"
+    android:id="@+id/flipper"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:id="@+id/main"
     android:orientation="vertical"
     android:weightSum="20">
 
-        <LinearLayout
-            android:id="@+id/filterBar"
-            android:orientation="horizontal"
-            android:layout_width="fill_parent"
+    <LinearLayout
+        android:id="@+id/filterBar"
+        android:orientation="horizontal"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.2"
+        >
+        <TextView
+            android:id="@+id/listCount"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_weight="0.2"
-            >
-            <TextView
-                android:id="@+id/listCount"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="(21)"
-                android:gravity="bottom"
-                android:textSize="20sp"
-                />
-            <EditText
-                android:id="@+id/searchInput"
-                android:layout_height="wrap_content"
-                android:layout_width="550px" />
+            android:text="(21)"
+            android:gravity="bottom"
+            android:textSize="20sp"
+            />
+        <EditText
+            android:id="@+id/searchInput"
+            android:layout_height="wrap_content"
+            android:layout_width="550px" />
 
-            <Button
-                android:id="@+id/searchButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Search" />
+        <Button
+            android:id="@+id/searchButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Search" />
 
-            <Button
-                android:id="@+id/filterButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Filter" />
+        <Button
+            android:id="@+id/filterButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Filter" />
 
-        </LinearLayout>
+    </LinearLayout>
 
 
 
@@ -60,7 +68,7 @@
             />
 
 
-        </LinearLayout>
+    </LinearLayout>
 
 
     <LinearLayout
@@ -95,15 +103,38 @@
 
     </LinearLayout>
 
-        <!--<Button-->
-            <!--android:id="@+id/startButton"-->
-            <!--android:layout_width="fill_parent"-->
-            <!--android:layout_height="wrap_content"-->
-            <!--android:text="Press to get data"-->
-            <!--&gt;-->
+    <!--<Button-->
+    <!--android:id="@+id/startButton"-->
+    <!--android:layout_width="fill_parent"-->
+    <!--android:layout_height="wrap_content"-->
+    <!--android:text="Press to get data"-->
+    <!--&gt;-->
 
-        <!--</Button>-->
+    <!--</Button>-->
 
 
 
-</LinearLayout>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/mapView"
+        android:orientation="vertical">
+
+        <TextView android:id="@+id/mapsText"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Hello from Maps Page!"/>
+
+
+        <Button
+            android:id="@+id/mapsBackButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Back" />
+
+    </LinearLayout>
+
+
+</ViewFlipper>

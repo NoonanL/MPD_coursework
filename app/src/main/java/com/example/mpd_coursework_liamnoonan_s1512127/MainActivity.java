@@ -32,6 +32,7 @@ import android.widget.PopupMenu;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
+import android.widget.ViewFlipper;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -64,6 +65,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     private String result = "";
     private ListViewAdapter adapter;
 
+    private String sortOption;
+    private String searchParam;
+
+
+
+    private Button mapsBackButton;
+    private ViewFlipper flipper;
+    private TextView mapsText;
+    private Earthquake focusEarthquake;
 
     /**
      * On create method, initialises variables and attaches ui components where necessary
@@ -75,7 +85,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        
+
         // Set up the raw links to the graphical components
         filterButton = findViewById(R.id.filterButton);
         filterButton.setOnClickListener(this);
@@ -92,6 +102,16 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
         listView = findViewById(R.id.listView);
 
+
+        mapsBackButton=(Button)findViewById(R.id.mapsBackButton);
+        mapsBackButton.setOnClickListener(this);
+        flipper=(ViewFlipper)findViewById(R.id.flipper);
+        //when a view is displayed
+        flipper.setInAnimation(this,android.R.anim.fade_in);
+        //when a view disappears
+        flipper.setOutAnimation(this, android.R.anim.fade_out);
+        mapsText=findViewById(R.id.mapsText);
+
         startProgress();
 
     }
@@ -107,7 +127,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     {
         if(aview == searchButton){
             System.out.println("Search button pressed!");
-            String searchParam = searchInput.getText().toString();
+            searchParam = searchInput.getText().toString();
             searchFunc(searchParam);
         } else if (aview == filterButton){
 
@@ -121,48 +141,20 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
             popup.setOnMenuItemClickListener(new PopupMenu.OnMenuItemClickListener() {
                 //on click handlers
                 public boolean onMenuItemClick(MenuItem item) {
-
-                    //reset earthquakeList to the original earthquake dataset
-                    if(item.getTitle().equals("Reset Filters")) {
-                        earthquakeList = new ArrayList<>();
-                        earthquakeList.addAll(originEarthquakeList);
-                        Toast.makeText(MainActivity.this, "Filtered by Default", Toast.LENGTH_SHORT).show();
-                    }
-                    //Sort by magnitude ascending
-                    if(item.getTitle().equals("Magnitude (Ascending)")) {
-                        Collections.sort(earthquakeList, Earthquake.magAscComparitor);
-                        Toast.makeText(MainActivity.this, "Filtered by Magnitude (Ascending)", Toast.LENGTH_SHORT).show();
-                    }
-                    //Sort by magnitude descending
-                    if(item.getTitle().equals("Magnitude (Descending)")) {
-                        Collections.sort(earthquakeList, Earthquake.magDescComparitor);
-                        Toast.makeText(MainActivity.this, "Filtered by Magnitude (Descending)", Toast.LENGTH_SHORT).show();
-                    }
-                    //Sort by depth ascending
-                    if(item.getTitle().equals("Depth: (Shallow -> Deep)")) {
-                        Collections.sort(earthquakeList, Earthquake.depthAscComparator);
-                        Toast.makeText(MainActivity.this, "Filtered by Depth: (Shallow -> Deep)", Toast.LENGTH_SHORT).show();
-                    }
-                    //Sort by depth descending
-                    if(item.getTitle().equals("Depth: (Deep -> Shallow)")) {
-                        Collections.sort(earthquakeList, Earthquake.depthDescComparator);
-                        Toast.makeText(MainActivity.this, "Filtered by Depth: (Deep -> Shallow)", Toast.LENGTH_SHORT).show();
-                    }
-                    //else not implemented yet
-                   
-                    //update the listView adapter to account for the filtered dataset
-                    adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
-                    //assign the new adapter to the listview
-                    listView.setAdapter(adapter);
-                    //update the adapter's dataset.
-                    adapter.notifyDataSetChanged();
+                    sortOption = item.getTitle().toString();
+                    sorting(sortOption);
                     return true;
                 }
             });
 
             popup.show();//showing popup menu
         }
-
+        else if (aview == mapsBackButton){
+            /**
+             * If back is pressed on the maps page return to previous view.
+             */
+            flipper.showPrevious();
+        }
     }
 
     /**
@@ -204,9 +196,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                     listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                            Earthquake dataModel= originEarthquakeList.get(position);
+                            Earthquake dataModel= earthquakeList.get(position);
                             //On item click, so here you can redirect to the next page perhaps for more detail?
-                            Log.e("UserEvent", "Info button clicked for item " + dataModel.getTitle());
+                            Log.e("UserEvent", "List Item clicked:" + dataModel.getTitle());
+                            focusEarthquake = dataModel;
+                            flipper.showNext();
+                            mapsText.setText(dataModel.getTitle());
                         }
                     });
 
@@ -240,7 +235,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         }
     }
 
-
     /**
      * Provides search functionality
      * @param searchParam input string for searching
@@ -250,9 +244,9 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         //if the search is not empty
         if(searchParam.length() >0){
 
-            earthquakeList = new ArrayList<>();
-            earthquakeList.addAll(originEarthquakeList);
-
+            if(earthquakeList == null){
+                earthquakeList.addAll(originEarthquakeList);
+            }
             //create new arraylist to contain search results
             ArrayList<Earthquake> searchResults = new ArrayList<>();
 
@@ -267,6 +261,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
             listCount.setText("(" + searchResults.size() + ")");
             //Reinstantiate the adapter with the search results
             adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+            listView.setAdapter(adapter);
+            adapter.notifyDataSetChanged();
 
         }
 
@@ -274,11 +270,56 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         else{
             listCount.setText("(" + originEarthquakeList.size() + ")");
             adapter = new ListViewAdapter(originEarthquakeList, getApplicationContext());
+            //assign the new adapter to the listview
+            listView.setAdapter(adapter);
+            //update the adapter's dataset.
+            adapter.notifyDataSetChanged();
         }
-        //assign the new adapter to the listview
-        listView.setAdapter(adapter);
-        //update the adapter's dataset.
-        adapter.notifyDataSetChanged();
+
+    }
+
+    /**
+     * Provides sorting functionality using a switch statement
+     * @param sortOption
+     */
+    private void sorting(String sortOption){
+        switch(sortOption){
+            case "Reset Filters":
+                earthquakeList = new ArrayList<>();
+                earthquakeList.addAll(originEarthquakeList);
+                adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
+                adapter.notifyDataSetChanged();
+                listView.setAdapter(adapter);
+                Toast.makeText(MainActivity.this, "Filtered by Default", Toast.LENGTH_SHORT).show();
+                break;
+            case "Magnitude (Ascending)":
+                Collections.sort(earthquakeList, Earthquake.magAscComparitor);
+                adapter.sort(Earthquake.magAscComparitor);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(MainActivity.this, "Filtered by Magnitude (Ascending)", Toast.LENGTH_SHORT).show();
+                break;
+            case "Magnitude (Descending)":
+                Collections.sort(earthquakeList, Earthquake.magDescComparitor);
+                adapter.sort(Earthquake.magDescComparitor);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(MainActivity.this, "Filtered by Magnitude (Descending)", Toast.LENGTH_SHORT).show();
+                break;
+            case "Depth: (Shallow -> Deep)":
+                Collections.sort(earthquakeList, Earthquake.depthAscComparator);
+                adapter.sort(Earthquake.depthAscComparator);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(MainActivity.this, "Filtered by Depth: (Shallow -> Deep)", Toast.LENGTH_SHORT).show();
+                break;
+            case "Depth: (Deep -> Shallow)":
+                Collections.sort(earthquakeList, Earthquake.depthDescComparator);
+                adapter.sort(Earthquake.depthDescComparator);
+                adapter.notifyDataSetChanged();
+                Toast.makeText(MainActivity.this, "Filtered by Depth: (Deep -> Shallow)", Toast.LENGTH_SHORT).show();
+                break;
+
+
+        }
+
     }
 
     /**
@@ -302,14 +343,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
             //Call fetch data function to refetch the earthquake data
            fetchData();
-
            //Since this is basically instant, set up a dummy timer for the UI and have it count down
                 while(progress_status<100)
                 {
-                    progress_status += 2;
+                    progress_status += 10;
                     publishProgress(progress_status);
                     SystemClock.sleep(100); // or Thread.sleep(300);
                 }
+            callSort();
+
                 return null;
         }
 
@@ -326,6 +368,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         {
             super.onPostExecute(result);
             progressBarVisibility(false);
+
 
         }
     }
@@ -557,6 +600,25 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         });
 
 
+    }
+
+    /**
+     * Resorts and re-searches data after a fetch operation as the earthquakelist is updated each fetch cycle
+     * so must be resorted or fetched accordingly.
+     */
+    public void callSort(){
+        runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                if(sortOption!=null){
+                    sorting(sortOption);
+                }
+                if(searchParam != null && !searchParam.equals("")){
+                    searchFunc(searchParam);
+                }
+
+            }
+        });
     }
 
 }

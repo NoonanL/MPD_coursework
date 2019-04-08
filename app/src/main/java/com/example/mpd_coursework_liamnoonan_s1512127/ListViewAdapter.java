@@ -12,6 +12,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
 import android.widget.TextView;
+import android.widget.ViewFlipper;
 
 import java.util.ArrayList;
 
@@ -27,6 +28,8 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         TextView txtDate;
         TextView txtDepth;
         ImageView info;
+
+
     }
 
     public ListViewAdapter(ArrayList<Earthquake> data, Context context) {
@@ -42,14 +45,14 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         int position=(Integer) v.getTag();
         Earthquake dataModel= getItem(position);
 
-        switch (v.getId())
-        {
-            case R.id.item_info:
-                Log.e("UserEvent", "Info button clicked for item " + dataModel.getTitle());
-//                Snackbar.make(v, "Release date " +dataModel.getFeature(), Snackbar.LENGTH_LONG)
-//                        .setAction("No action", null).show();
-                break;
-        }
+//        switch (v.getId())
+//        {
+//            case R.id.item_info:
+//                Log.e("UserEvent", "Info button clicked for item " + dataModel.getTitle());
+////                Snackbar.make(v, "Release date " +dataModel.getFeature(), Snackbar.LENGTH_LONG)
+////                        .setAction("No action", null).show();
+//                break;
+//        }
     }
 
     private int lastPosition = -1;
@@ -76,7 +79,7 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
             viewHolder.txtMag = convertView.findViewById(R.id.txtMag);
             viewHolder.txtDate = convertView.findViewById(R.id.txtDate);
             viewHolder.txtDepth = convertView.findViewById(R.id.txtDepth);
-            viewHolder.info = convertView.findViewById(R.id.item_info);
+            //viewHolder.info = convertView.findViewById(R.id.item_info);
 
             result=convertView;
 
@@ -123,8 +126,8 @@ public class ListViewAdapter extends ArrayAdapter<Earthquake> implements View.On
         viewHolder.txtDate.setText(" " + dataModel.getPubDate());
         viewHolder.txtMag.setText(" Magnitude: " + String.valueOf(dataModel.getMagnitude()));
         viewHolder.txtDepth.setText(" Depth: " + String.valueOf(dataModel.getDepth() + "km"));
-        viewHolder.info.setOnClickListener(this);
-        viewHolder.info.setTag(position);
+//        viewHolder.info.setOnClickListener(this);
+//        viewHolder.info.setTag(position);
         // Return the completed view to render on screen
         return convertView;
     }
