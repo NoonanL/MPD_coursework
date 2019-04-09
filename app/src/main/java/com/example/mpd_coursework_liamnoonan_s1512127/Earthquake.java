@@ -1,3 +1,10 @@
+//
+// Name                 Liam Noonan
+// Student ID           S1512127
+// Programme of Study   Computing
+//
+
+// Update the package name to include your Student Identifier
 package com.example.mpd_coursework_liamnoonan_s1512127;
 
 import java.util.Comparator;
@@ -33,12 +40,12 @@ public class Earthquake {
 
     public void setDescription(String description) {
         this.description = description;
-        //System.out.println(description);
+        /**
+         * If the description contains ; delimited data then parse it.
+         */
         if(description.contains(";") && description.contains(":")){
             parseDescription(description);
         }
-
-        //System.out.println(Arrays.toString(vals));
     }
 
     public String getLink() {
@@ -121,21 +128,24 @@ public class Earthquake {
         this.depthColour = depthColour;
     }
 
-
-
     /**
      * Used to parse additional data from the description tag such as the magnitude
      * @param description
      */
     private void parseDescription(String description){
-        String[] pairs = description.split(";");
-        //System.out.println("Got to parse description method");
 
+        /**
+         * Creates an array of strings which represent the pairs of data delimited in the Title by ";"
+         *
+         */
+        String[] pairs = description.split(";");
+
+        //Create a hashmap to add key:value pairs of variables to once parsed
         Map<String, String> map = new HashMap<String, String>();
 
+        //For each string in the array of pairs split further into key:value pairs and store in map
         for(String s : pairs) {
             if (!s.contains("Origin")) {
-
                 String[] vals = s.split(":");
                 for (int i = 0; i < vals.length; i += 2) {
                     map.put(vals[i], vals[i + 1]);
@@ -143,6 +153,7 @@ public class Earthquake {
             }
         }
 
+        //For each key-value pair, if the key is a variable then assign that value to the variable of this object
         for (String s : map.keySet()) {
             if(s.contains("Magnitude")){
                 this.magnitude = Float.parseFloat(map.get(s));
@@ -165,11 +176,12 @@ public class Earthquake {
                 if(map.get(s) != null){
 
                    String str = map.get(s) ;
-                   //Regex to return just the numbers from the string (remove km)
+                   //Regex to return just the numbers from the string (removes km)
                     str = str.replaceAll("\\D+","");
 
                     this.depth = Integer.parseInt(str);
 
+                    //Sets the colour identifier of the depth of this earthquake based on the value
                     if(depth < 5){
                         this.depthColour = "green";
                     }
@@ -179,7 +191,7 @@ public class Earthquake {
                     if(depth > 9){
                         this.depthColour = "red";
                     }
-                    //System.out.println("Depth is " + this.getDepth());
+
                 }
 
             }
@@ -187,6 +199,10 @@ public class Earthquake {
         }
     }
 
+    /**
+     * To string method
+     * @return String representation of object
+     */
     @Override
     public String toString(){
         return this.getTitle() + "\n" +
@@ -202,8 +218,10 @@ public class Earthquake {
                 this.getMagColour() + "\n";
     }
 
-    //Comparator for magnitude value ascending
-    public static Comparator<Earthquake> magAscComparitor = new Comparator<Earthquake>(){
+    /**
+     * Comparator for magnitude value ascending
+     */
+    static Comparator<Earthquake> magAscComparitor = new Comparator<Earthquake>(){
 
             public int compare(Earthquake e1, Earthquake e2){
 
@@ -211,8 +229,11 @@ public class Earthquake {
 
             }
     };
-    //Comparator for magnitude value ascending
-    public static Comparator<Earthquake> magDescComparitor = new Comparator<Earthquake>(){
+
+    /**
+     * Comparator for magnitude value ascending
+     */
+    static Comparator<Earthquake> magDescComparitor = new Comparator<Earthquake>(){
 
         public int compare(Earthquake e1, Earthquake e2){
 
@@ -220,8 +241,11 @@ public class Earthquake {
 
         }
     };
-    //Comparator for depth value ascending
-    public static Comparator<Earthquake> depthAscComparator = new Comparator<Earthquake>(){
+
+    /**
+     * Comparator for depth value ascending
+     */
+    static Comparator<Earthquake> depthAscComparator = new Comparator<Earthquake>(){
 
         public int compare(Earthquake e1, Earthquake e2){
 
@@ -230,8 +254,10 @@ public class Earthquake {
         }
     };
 
-    //Comparator for depth value ascending
-    public static Comparator<Earthquake> depthDescComparator = new Comparator<Earthquake>(){
+    /**
+     * Comparator for depth value ascending
+     */
+    static Comparator<Earthquake> depthDescComparator = new Comparator<Earthquake>(){
 
         public int compare(Earthquake e1, Earthquake e2){
 

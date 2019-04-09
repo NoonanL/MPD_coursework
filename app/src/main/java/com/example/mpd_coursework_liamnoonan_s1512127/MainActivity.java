@@ -16,9 +16,7 @@ package com.example.mpd_coursework_liamnoonan_s1512127;
 import android.annotation.SuppressLint;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.os.Handler;
 import android.os.SystemClock;
-import android.support.v4.app.FragmentActivity;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.MenuItem;
@@ -27,7 +25,6 @@ import android.view.View.OnClickListener;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.ListView;
 import android.widget.PopupMenu;
 import android.widget.ProgressBar;
@@ -54,33 +51,59 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Iterator;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class MainActivity extends AppCompatActivity implements OnClickListener
+public class MainActivity extends AppCompatActivity implements OnClickListener, OnMapReadyCallback
 {
-    private Button startButton;
+
+    /**
+     * View Flipper Container
+     */
+    private ViewFlipper flipper;
+
+    /**
+     * Search/Filter Bar variables
+     */
     private Button searchButton;
     private Button filterButton;
     private EditText searchInput;
-    public ProgressBar progressBar;
-    private TextView txt_percentage;
+
+    /**
+     * Data variables
+     */
+    //The original parsed earthquake list
     private ArrayList<Earthquake> originEarthquakeList;
+    //The earthquake list for use when manipulating, ie searching or filtering
     private ArrayList<Earthquake> earthquakeList;
+    //Empty String for use in parsing
+    private String result = "";
+    //The selected used sort option
+    private String sortOption;
+    //User inputed search string
+    private String searchParam;
+    //The user selected earthquake for use on maps page
+    private Earthquake focusEarthquake;
+
+    /**
+     * List View variables
+     */
     private ListView listView;
     private TextView listCount;
-    private String result = "";
     private ListViewAdapter adapter;
 
-    private String sortOption;
-    private String searchParam;
+    /**
+     * Progress Bar
+     */
+    public ProgressBar progressBar;
 
 
+    /**
+     * Maps page variables, text, back button and map itself
+     */
     private Button mapsBackButton;
-    private ViewFlipper flipper;
     private TextView mapsText;
-    private Earthquake focusEarthquake;
+    private GoogleMap mMap;
 
     /**
      * On create method, initialises variables and attaches ui components where necessary
@@ -105,7 +128,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         searchInput.setFocusable(true);
 
         progressBar =  (ProgressBar) findViewById(R.id.progress);
-        txt_percentage= (TextView) findViewById(R.id.txt_percentage);
 
         listView = findViewById(R.id.listView);
 
@@ -118,11 +140,12 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
         flipper.setOutAnimation(this, android.R.anim.fade_out);
         mapsText=findViewById(R.id.mapsText);
 
-        startProgress();
+         SupportMapFragment test = ((SupportMapFragment)getSupportFragmentManager().findFragmentById(R.id.map));
+         test.getMapAsync(this);
+
+         startProgress();
 
     }
-
-
 
     /**
      * On click listener, handles button presses
@@ -174,6 +197,22 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
     }
 
     /**
+     * Called once map is loaded, since at this point no earthquake has been selected, this function
+     * simply moves the camera location to central uk as all the seismic data is uk based.
+     * @param googleMap
+     */
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+
+        Log.e("MAPS", "I'm In MAP!");
+
+        LatLng london = new LatLng(51.509865, -0.118092);
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(london));
+
+    }
+
+    /**
      * Main task which sets up the UI and async refresh thread.
      */
     private class Task implements Runnable
@@ -193,7 +232,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
                 //Main function
                 public void run() {
-                   // Log.d("Position", "I am the UI thread");
 
                     //Call the search function to set the defaults.
                     searchFunc("");
@@ -203,11 +241,21 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                         @Override
                         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                             Earthquake dataModel= earthquakeList.get(position);
-                            //On item click, so here you can redirect to the next page perhaps for more detail?
+                            //On item click log particular item for testing
                             Log.e("UserEvent", "List Item clicked:" + dataModel.getTitle());
+                            //Set the focussed earthquake to the one clicked by the user
                             focusEarthquake = dataModel;
+                            //Navigate to maps page
                             flipper.showNext();
-                            mapsText.setText(dataModel.getTitle());
+                            //set the heading text for the next page
+                            mapsText.setText("Location: " + dataModel.getLocation() + ", Magnitude: " + dataModel.getMagnitude() + ", Depth: " + dataModel.getDepth() + ".");
+                            //Clear the map of any existing markers
+                            mMap.clear();
+                            //Set the map location to the lat and long of the earthquake
+                            LatLng quakeLocation = new LatLng(focusEarthquake.getLatitude(), focusEarthquake.getLongitude());
+                            mMap.addMarker(new MarkerOptions().position(quakeLocation).title("Marker in " + focusEarthquake.getLocation() + ". Magnitude:  " + focusEarthquake.getMagnitude()));
+                            mMap.moveCamera(CameraUpdateFactory.newLatLng(quakeLocation));
+
                         }
                     });
 
@@ -236,7 +284,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
                     new FetchData().execute();
                 }
 
-            }, 0, 20000);
+            }, 0, 30000); // Every 30 seconds
 
         }
     }
@@ -594,12 +642,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener
 
                     // Stuff that updates the UI
                     progressBar.setVisibility(View.VISIBLE);
-                    txt_percentage.setVisibility(View.VISIBLE);
                     Toast.makeText(MainActivity.this,"Auto Fetching data..", Toast.LENGTH_SHORT).show();
 
                 }else{
                         progressBar.setVisibility(View.INVISIBLE);
-                        txt_percentage.setVisibility(View.INVISIBLE);
                         Toast.makeText(MainActivity.this,"Updated.", Toast.LENGTH_SHORT).show();
                     }
             }

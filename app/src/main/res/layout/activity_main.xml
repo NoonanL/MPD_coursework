@@ -1,144 +1,128 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!-- MPD XML Starter code Semester B Session 2018 2019 -->
+<!-- Name                 Liam Noonan-->
+<!-- Student ID           S1512127-->
+<!-- Programme of Study   Computing-->
 
-<ViewFlipper
-    android:layout_height="fill_parent"
-    android:layout_width="fill_parent"
+
+<ViewFlipper xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/flipper"
-    xmlns:android="http://schemas.android.com/apk/res/android">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent">
 
 
     <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="fill_parent"
-    android:layout_height="match_parent"
-    android:id="@+id/main"
-    android:orientation="vertical"
-    android:weightSum="20">
-
-    <LinearLayout
-        android:id="@+id/filterBar"
-        android:orientation="horizontal"
+        android:id="@+id/main"
         android:layout_width="fill_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="0.2"
-        >
-        <TextView
-            android:id="@+id/listCount"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="(21)"
-            android:gravity="bottom"
-            android:textSize="20sp"
-            />
-        <EditText
-            android:id="@+id/searchInput"
-            android:layout_height="wrap_content"
-            android:layout_width="550px" />
-
-        <Button
-            android:id="@+id/searchButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Search" />
-
-        <Button
-            android:id="@+id/filterButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Filter" />
-
-    </LinearLayout>
-
-
-
-
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="0px"
-        android:layout_weight="20.5"
+        android:layout_height="match_parent"
         android:orientation="vertical"
-        android:id="@+id/listHolder">
+       >
 
-        <ListView
-            android:id="@+id/listView"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            />
-
-
-    </LinearLayout>
-
-
-    <LinearLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:id="@+id/pushBar">
-
-        <TextView
-            android:id="@+id/acknowledgement"
+        <LinearLayout
+            android:id="@+id/filterBar"
             android:layout_width="fill_parent"
             android:layout_height="wrap_content"
-            android:text="Contains British Geological Survey materials ©NERC 2019"
-            android:textSize="14sp"
-            android:textAlignment="center"
-            />
-        <ProgressBar android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:id="@+id/progress"
-            android:visibility="invisible"
-            android:layout_gravity="bottom"
-            style="?android:attr/progressBarStyleHorizontal"/>
+            android:orientation="horizontal">
 
-        <TextView android:layout_height="wrap_content"
-            android:layout_width="fill_parent"
-            android:text="List is up to date."
-            android:visibility="invisible"
-            android:id="@+id/txt_percentage"
-            android:layout_gravity="bottom"
-            android:gravity="center"
-            />
+            <TextView
+                android:id="@+id/listCount"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="bottom"
+                android:text="(21)"
+                android:textSize="20sp" />
 
-    </LinearLayout>
+            <EditText
+                android:id="@+id/searchInput"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:layout_width="match_parent"/>
 
-    <!--<Button-->
-    <!--android:id="@+id/startButton"-->
-    <!--android:layout_width="fill_parent"-->
-    <!--android:layout_height="wrap_content"-->
-    <!--android:text="Press to get data"-->
-    <!--&gt;-->
+            <Button
+                android:id="@+id/searchButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Search" />
 
-    <!--</Button>-->
+            <Button
+                android:id="@+id/filterButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Filter" />
+
+        </LinearLayout>
 
 
+        <LinearLayout
+            android:id="@+id/listHolder"
+            android:layout_width="match_parent"
+            android:layout_height="0px"
+            android:layout_weight="1"
+            android:orientation="vertical">
+
+            <ListView
+                android:id="@+id/listView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content" />
+
+
+        </LinearLayout>
+
+
+        <LinearLayout
+            android:id="@+id/pushBar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <TextView
+                android:id="@+id/acknowledgement"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:text="Contains British Geological Survey materials ©NERC 2019"
+                android:textAlignment="center"
+                android:textSize="14sp" />
+
+            <ProgressBar
+                android:id="@+id/progress"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="fill_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"
+                android:visibility="invisible" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
     <LinearLayout
+        android:id="@+id/mapView"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:id="@+id/mapView"
-        android:orientation="vertical">
-
-        <TextView android:id="@+id/mapsText"
+        android:orientation="vertical"
+        >
+        <TextView
+            android:id="@+id/mapsText"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Hello from Maps Page!"/>
+            android:text=""
+            android:textSize="20sp"
+            />
 
         <fragment
             android:id="@+id/map"
-            android:name="com.google.android.gms.maps.MapFragment"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"/>
-
-
-        <Button
-            android:id="@+id/mapsBackButton"
+            android:name="com.google.android.gms.maps.SupportMapFragment"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Back" />
+            android:layout_weight="1"
+            />
+        <Button
+            android:id="@+id/mapsBackButton"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_gravity="right"
+            android:text="Back"
+           />
 
     </LinearLayout>
 
