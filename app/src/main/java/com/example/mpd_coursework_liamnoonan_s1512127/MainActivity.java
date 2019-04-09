@@ -95,7 +95,8 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     /**
      * Progress Bar
      */
-    public ProgressBar progressBar;
+    private ProgressBar progressBar;
+    private Button mapViewButton;
 
 
     /**
@@ -127,13 +128,15 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         searchInput.setWidth(120);
         searchInput.setFocusable(true);
 
-        progressBar =  (ProgressBar) findViewById(R.id.progress);
+        progressBar = findViewById(R.id.progress);
+        mapViewButton = findViewById(R.id.mapViewButton);
+        mapViewButton.setOnClickListener(this);
 
         listView = findViewById(R.id.listView);
 
-        mapsBackButton=(Button)findViewById(R.id.mapsBackButton);
+        mapsBackButton= findViewById(R.id.mapsBackButton);
         mapsBackButton.setOnClickListener(this);
-        flipper=(ViewFlipper)findViewById(R.id.flipper);
+        flipper= findViewById(R.id.flipper);
         //when a view is displayed
         flipper.setInAnimation(this,android.R.anim.fade_in);
         //when a view disappears
@@ -184,6 +187,18 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
              */
             flipper.showPrevious();
         }
+        else if(aview == mapViewButton){
+            Log.e("User Event","Map view button clicked!");
+            flipper.showNext();
+            //Clear the map of any existing markers
+            mMap.clear();
+            //set the heading text for the next page
+            mapsText.setText("All Search and Filter Results:");
+            for(Earthquake e : earthquakeList){
+                LatLng quakeLocation = new LatLng(e.getLatitude(), e.getLongitude());
+                mMap.addMarker(new MarkerOptions().position(quakeLocation).title(e.getLocation() + ". Magnitude:  " + e.getMagnitude() + ", Depth: " + e.getDepth()));
+            }
+        }
     }
 
     /**
@@ -204,8 +219,6 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-
-        Log.e("MAPS", "I'm In MAP!");
 
         LatLng london = new LatLng(51.509865, -0.118092);
         mMap.moveCamera(CameraUpdateFactory.newLatLng(london));
