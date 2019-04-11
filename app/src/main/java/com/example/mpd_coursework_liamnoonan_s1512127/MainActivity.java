@@ -335,7 +335,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
 
         //else search is empty - return the full list of earthquakes
         else{
-            listCount.setText("(" + originEarthquakeList.size() + ")");
+            listCount.setText("(" + earthquakeList.size() + ")");
             adapter = new ListViewAdapter(originEarthquakeList, getApplicationContext());
             //assign the new adapter to the listview
             listView.setAdapter(adapter);
@@ -354,8 +354,10 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
             case "Reset Filters":
                 earthquakeList = new ArrayList<>();
                 earthquakeList.addAll(originEarthquakeList);
+                searchParam = "";
                 adapter = new ListViewAdapter(earthquakeList, getApplicationContext());
                 adapter.notifyDataSetChanged();
+                listCount.setText("(" + earthquakeList.size() + ")");
                 listView.setAdapter(adapter);
                 Toast.makeText(MainActivity.this, "Filtered by Default", Toast.LENGTH_SHORT).show();
                 break;
@@ -363,24 +365,28 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
                 Collections.sort(earthquakeList, Earthquake.magAscComparitor);
                 adapter.sort(Earthquake.magAscComparitor);
                 adapter.notifyDataSetChanged();
+                listCount.setText("(" + earthquakeList.size() + ")");
                 Toast.makeText(MainActivity.this, "Filtered by Magnitude (Ascending)", Toast.LENGTH_SHORT).show();
                 break;
             case "Magnitude (Descending)":
                 Collections.sort(earthquakeList, Earthquake.magDescComparitor);
                 adapter.sort(Earthquake.magDescComparitor);
                 adapter.notifyDataSetChanged();
+                listCount.setText("(" + earthquakeList.size() + ")");
                 Toast.makeText(MainActivity.this, "Filtered by Magnitude (Descending)", Toast.LENGTH_SHORT).show();
                 break;
             case "Depth: (Shallow -> Deep)":
                 Collections.sort(earthquakeList, Earthquake.depthAscComparator);
                 adapter.sort(Earthquake.depthAscComparator);
                 adapter.notifyDataSetChanged();
+                listCount.setText("(" + earthquakeList.size() + ")");
                 Toast.makeText(MainActivity.this, "Filtered by Depth: (Shallow -> Deep)", Toast.LENGTH_SHORT).show();
                 break;
             case "Depth: (Deep -> Shallow)":
                 Collections.sort(earthquakeList, Earthquake.depthDescComparator);
                 adapter.sort(Earthquake.depthDescComparator);
                 adapter.notifyDataSetChanged();
+                listCount.setText("(" + earthquakeList.size() + ")");
                 Toast.makeText(MainActivity.this, "Filtered by Depth: (Deep -> Shallow)", Toast.LENGTH_SHORT).show();
                 break;
 
@@ -675,7 +681,7 @@ public class MainActivity extends AppCompatActivity implements OnClickListener, 
         runOnUiThread(new Runnable() {
             @Override
             public void run() {
-                if(sortOption!=null){
+                if(sortOption!=null && !sortOption.equals("")){
                     sorting(sortOption);
                 }
                 if(searchParam != null && !searchParam.equals("")){
